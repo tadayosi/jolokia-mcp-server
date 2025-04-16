@@ -24,7 +24,10 @@ import io.quarkiverse.mcp.server.ToolManager;
 import io.quarkiverse.mcp.server.ToolResponse;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -44,20 +47,58 @@ public class JolokiaMcpServer {
     @Startup
     void registerTools() {
         try {
-            listTools().forEach(tool -> toolManager.newTool(tool.name())
-                .setDescription(tool.description())
-                .setHandler(args -> {
-                    try {
-                        Optional<Object> response = jolokiaClient.exec(tool.objectName(), tool.operation(), tool.args());
-                        return ToolResponse.success(response.orElse("null").toString());
-                    } catch (MalformedObjectNameException | J4pException e) {
-                        return ToolResponse.error(e.getMessage());
-                    }
-                })
-                .register());
+            listTools().forEach(tool -> {
+                ToolManager.ToolDefinition def = toolManager.newTool(tool.name())
+                    .setDescription(tool.description())
+                    .setHandler(args -> {
+                        try {
+                            Optional<Object> response = jolokiaClient.exec(
+                                tool.objectName(),
+                                tool.operation(),
+                                toolArgsToArgs(args.args(), tool.args()));
+                            return ToolResponse.success(response.orElse("null").toString());
+                        } catch (MalformedObjectNameException | J4pException | IllegalArgumentException e) {
+                            return ToolResponse.error(e.getMessage());
+                        }
+                    });
+                Arrays.stream(tool.args())
+                    .map(arg -> (JSONObject) arg)
+                    .forEach(arg -> {
+                        def.addArgument(
+                            (String) arg.get("name"),
+                            (String) arg.get("desc"),
+                            true,
+                            toJavaType((String) arg.get("type")));
+                    });
+                def.register();
+            });
         } catch (J4pException e) {
             Log.error(e.getMessage(), e);
         }
+    }
+
+    Type toJavaType(String type) {
+        return switch (type) {
+            case "boolean", "java.lang.Boolean" -> Boolean.class;
+            case "int", "java.lang.Integer" -> Integer.class;
+            case "long", "java.lang.Long" -> Long.class;
+            case "short", "java.lang.Short" -> Short.class;
+            case "double", "java.lang.Double" -> Double.class;
+            case "float", "java.lang.Float" -> Float.class;
+            case "byte", "java.lang.Byte" -> Byte.class;
+            case "java.lang.String" -> String.class;
+            default -> Object.class;
+        };
+    }
+
+    Object[] toolArgsToArgs(Map<String, Object> toolArgs, Object[] args) throws IllegalArgumentException {
+        if (toolArgs.size() != args.length) {
+            throw new IllegalArgumentException("Invalid number of arguments");
+        }
+        return Arrays.stream(args)
+            .map(arg -> (JSONObject) arg)
+            .map(arg -> toolArgs.get(arg.get("name")))
+            .toArray();
     }
 
     List<MBeanTool> listTools() throws J4pException {
