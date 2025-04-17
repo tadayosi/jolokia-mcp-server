@@ -29,6 +29,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -37,6 +40,20 @@ import org.jolokia.json.JSONArray;
 import org.jolokia.json.JSONObject;
 
 public class JolokiaMcpServer {
+
+    static final Pattern TOOL_NAME_NEGATIVE_PATTERN = Pattern.compile("[^a-zA-Z0-9_-]+");
+    static final Set<String> DENYLIST_DOMAINS = Set.of(
+        "JMImplementation",
+        "com.sun.management"
+    );
+    static final Set<String> DENYLIST_OBJECTNAMES = Set.of();
+    static final Set<String> SPECIAL_PROP_KEYS = Set.of(
+        "type",
+        "name",
+        "context",
+        "component",
+        "agent"
+    );
 
     @Inject
     JolokiaClient jolokiaClient;
@@ -47,31 +64,32 @@ public class JolokiaMcpServer {
     @Startup
     void registerTools() {
         try {
-            listTools().forEach(tool -> {
-                ToolManager.ToolDefinition def = toolManager.newTool(tool.name())
-                    .setDescription(tool.description())
-                    .setHandler(args -> {
-                        try {
-                            Optional<Object> response = jolokiaClient.exec(
-                                tool.objectName(),
-                                tool.operation(),
-                                toolArgsToArgs(args.args(), tool.args()));
-                            return ToolResponse.success(response.orElse("null").toString());
-                        } catch (MalformedObjectNameException | J4pException | IllegalArgumentException e) {
-                            return ToolResponse.error(e.getMessage());
-                        }
-                    });
-                Arrays.stream(tool.args())
-                    .map(arg -> (JSONObject) arg)
-                    .forEach(arg -> {
+            listTools().stream()
+                // Tool name size must be <= 64 for Claude Desktop
+                .filter(tool -> tool.name().length() <= 64)
+                .forEach(tool -> {
+                    ToolManager.ToolDefinition def = toolManager.newTool(tool.name())
+                        .setDescription(tool.description())
+                        .setHandler(args -> {
+                            try {
+                                Optional<Object> response = jolokiaClient.exec(
+                                    tool.objectName(),
+                                    tool.operation(),
+                                    toolArgsToArgs(args.args(), tool.args()));
+                                return ToolResponse.success(response.orElse("null").toString());
+                            } catch (MalformedObjectNameException | J4pException | IllegalArgumentException e) {
+                                return ToolResponse.error(e.getMessage());
+                            }
+                        });
+                    tool.args().forEach(arg -> {
                         def.addArgument(
                             (String) arg.get("name"),
                             (String) arg.get("desc"),
                             true,
                             toJavaType((String) arg.get("type")));
                     });
-                def.register();
-            });
+                    def.register();
+                });
         } catch (J4pException e) {
             Log.error(e.getMessage(), e);
         }
@@ -91,55 +109,97 @@ public class JolokiaMcpServer {
         };
     }
 
-    Object[] toolArgsToArgs(Map<String, Object> toolArgs, Object[] args) throws IllegalArgumentException {
-        if (toolArgs.size() != args.length) {
+    Object[] toolArgsToArgs(Map<String, Object> toolArgs, List<JSONObject> args) throws IllegalArgumentException {
+        if (toolArgs.size() != args.size()) {
             throw new IllegalArgumentException("Invalid number of arguments");
         }
-        return Arrays.stream(args)
-            .map(arg -> (JSONObject) arg)
-            .map(arg -> toolArgs.get(arg.get("name")))
+        return args.stream()
+            .map(arg -> arg.get("name"))
+            .map(toolArgs::get)
             .toArray();
     }
 
     List<MBeanTool> listTools() throws J4pException {
         JSONObject domains = jolokiaClient.list();
         return domains.entrySet().stream()
+            .filter(d -> !DENYLIST_DOMAINS.contains(d.getKey()))
             .flatMap(d -> domain(d.getKey(), (JSONObject) d.getValue()))
             .collect(Collectors.toList());
     }
 
     Stream<MBeanTool> domain(String domain, JSONObject mbeans) {
         return mbeans.entrySet().stream()
+            .filter(m -> !DENYLIST_OBJECTNAMES.contains(domain + ":" + m.getKey()))
             .flatMap(m -> props(domain, m.getKey(), (JSONObject) m.getValue()));
     }
 
     Stream<MBeanTool> props(String domain, String props, JSONObject mbeanInfo) {
-        String objectName = domain + ":" + props;
-        Log.debug(objectName);
+        Log.debug(domain + ":" + props);
         return mbeanInfo.entrySet().stream()
             .filter(kv -> "op".equals(kv.getKey()))
-            .flatMap(kv -> ops(objectName, (JSONObject) kv.getValue()));
+            .flatMap(kv -> ops(domain, props, (JSONObject) kv.getValue()));
     }
 
-    Stream<MBeanTool> ops(String objectName, JSONObject ops) {
+    Stream<MBeanTool> ops(String domain, String props, JSONObject ops) {
         ops.forEach((k, v) -> Log.debugf("  %s = %s", k, v));
         return ops.entrySet().stream()
             .flatMap(kv -> {
                 if (kv.getValue() instanceof JSONArray) {
                     JSONArray v = (JSONArray) kv.getValue();
                     return IntStream.range(0, v.size())
-                        .mapToObj(i -> op(objectName, kv.getKey(), (JSONObject) v.get(i), i + 1));
+                        .mapToObj(i -> op(domain, props, kv.getKey(), (JSONObject) v.get(i), i + 1));
                 }
-                return Stream.of((op(objectName, kv.getKey(), (JSONObject) kv.getValue(), 0)));
+                return Stream.of((op(domain, props, kv.getKey(), (JSONObject) kv.getValue(), 0)));
             });
     }
 
-    MBeanTool op(String objectName, String opName, JSONObject opInfo, int index) {
-        String name = objectName + "/" + opName + (index > 0 ? index : "");
-        String desc = (String) opInfo.get("desc");
+    MBeanTool op(String domain, String props, String opName, JSONObject opInfo, int index) {
+        String name = toolName(domain, props, opName, index);
+        String objectName = domain + ":" + props;
+        String uniqueOpName = opName;
+        @SuppressWarnings("unchecked")
+        List<JSONObject> args = (List<JSONObject>) opInfo.get("args");
+        if (index > 0) {
+            // Overloaded operation
+            uniqueOpName += "(" + args.stream().map(arg -> (String) arg.get("type")).collect(Collectors.joining(",")) + ")";
+        }
+        String desc = objectName + "/" + uniqueOpName + ": " + opInfo.get("desc");
         String ret = (String) opInfo.get("ret");
-        JSONArray args = (JSONArray) opInfo.get("args");
-        return new MBeanTool(name, desc, objectName, opName, ret, args.toArray(new Object[0]));
+        return new MBeanTool(name, desc, objectName, uniqueOpName, ret, args);
+    }
+
+    String toolName(String domain, String props, String opName, int index) {
+        String name = shortObjectName(domain, props) + "-" + opName + (index > 0 ? "-" + index : "");
+        return TOOL_NAME_NEGATIVE_PATTERN.matcher(name).replaceAll("_");
+    }
+
+    String shortObjectName(String domain, String props) {
+        // Shorten domain
+        String shortDomain = domain;
+        if (domain.startsWith("org.apache.")) {
+            shortDomain = domain.substring("org.apache.".length());
+        }
+        shortDomain = shortDomain.replaceAll("[.]", "");
+
+        // Shorten props
+        Map<String, String> propMap = Arrays.stream(props.split(","))
+            .map(prop -> prop.split("="))
+            .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1], (v1, v2) -> v2, TreeMap::new));
+        StringBuilder shortProps = new StringBuilder();
+        for (String key : propMap.keySet()) {
+            if (SPECIAL_PROP_KEYS.contains(key)) {
+                if (!shortProps.isEmpty()) {
+                    shortProps.append("-");
+                }
+                shortProps.append(propMap.get(key));
+            }
+        }
+        // If there's no special key in prop list
+        if (shortProps.isEmpty()) {
+            shortProps.append(String.join("-", propMap.values()));
+        }
+
+        return shortDomain + "-" + shortProps;
     }
 
     record MBeanTool(
@@ -148,7 +208,7 @@ public class JolokiaMcpServer {
         String objectName,
         String operation,
         String returnType,
-        Object... args) {
+        List<JSONObject> args) {
     }
 }
 
