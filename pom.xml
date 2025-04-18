@@ -29,6 +29,29 @@
   <description>Jolokia MCP :: Parent :: POM</description>
   <url>https://jolokia.org/</url>
 
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Tadayoshi Sato</name>
+      <email>sato.tadayoshi@gmail.com</email>
+      <url>https://github.com/tadayosi</url>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:tadayosi/jolokia-mcp.git</connection>
+    <developerConnection>scm:git:git@github.com:tadayosi/jolokia-mcp.git</developerConnection>
+    <url>git@github.com:tadayosi/jolokia-mcp.git</url>
+    <tag>HEAD</tag>
+  </scm>
+
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
@@ -51,7 +74,12 @@
     <jetty.version>11.0.25</jetty.version>
 
     <!-- Plugin versions -->
+    <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
     <compiler-plugin.version>3.14.0</compiler-plugin.version>
+    <gpg-plugin.version>3.2.7</gpg-plugin.version>
+    <javadoc-plugin.version>3.11.2</javadoc-plugin.version>
+    <release-plugin.version>3.1.1</release-plugin.version>
+    <source-plugin.version>3.3.1</source-plugin.version>
     <surefire-plugin.version>3.5.2</surefire-plugin.version>
   </properties>
 
@@ -200,6 +228,15 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
+      <!-- Releasing -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>${release-plugin.version}</version>
+        <configuration>
+          <tagNameFormat>v@{project.version}</tagNameFormat>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -215,6 +252,64 @@
         <skipITs>false</skipITs>
         <quarkus.native.enabled>true</quarkus.native.enabled>
       </properties>
+    </profile>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${source-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${javadoc-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Sonatype Central -->
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>${central-publishing-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
