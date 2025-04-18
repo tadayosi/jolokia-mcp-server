@@ -22,7 +22,7 @@
 
   <groupId>org.jolokia.mcp</groupId>
   <artifactId>jolokia-mcp</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -49,7 +49,7 @@
     <connection>scm:git:git@github.com:tadayosi/jolokia-mcp.git</connection>
     <developerConnection>scm:git:git@github.com:tadayosi/jolokia-mcp.git</developerConnection>
     <url>git@github.com:tadayosi/jolokia-mcp.git</url>
-    <tag>HEAD</tag>
+    <tag>v0.1.0</tag>
   </scm>
 
   <properties>
