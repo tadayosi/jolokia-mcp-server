@@ -43,8 +43,12 @@ public class JolokiaMcpServer {
 
     static final Pattern TOOL_NAME_NEGATIVE_PATTERN = Pattern.compile("[^a-zA-Z0-9_-]+");
     static final Set<String> DENYLIST_DOMAINS = Set.of(
+        "java.util.logging",
         "JMImplementation",
-        "com.sun.management"
+        "jdk.management.jfr",
+        "com.sun.management",
+        "org.apache.logging.log4j2",
+        "java.nio"
     );
     static final Set<String> DENYLIST_OBJECTNAMES = Set.of();
     static final Set<String> SPECIAL_PROP_KEYS = Set.of(
@@ -64,35 +68,49 @@ public class JolokiaMcpServer {
     @Startup
     void registerTools() {
         try {
-            listTools().stream()
-                // Tool name size must be <= 64 for Claude Desktop
-                .filter(tool -> tool.name().length() <= 64)
-                .forEach(tool -> {
-                    ToolManager.ToolDefinition def = toolManager.newTool(tool.name())
-                        .setDescription(tool.description())
-                        .setHandler(args -> {
-                            try {
-                                Optional<Object> response = jolokiaClient.exec(
-                                    tool.objectName(),
-                                    tool.operation(),
-                                    toolArgsToArgs(args.args(), tool.args()));
-                                return ToolResponse.success(response.orElse("null").toString());
-                            } catch (MalformedObjectNameException | J4pException | IllegalArgumentException e) {
-                                return ToolResponse.error(e.getMessage());
-                            }
-                        });
-                    tool.args().forEach(arg -> {
-                        def.addArgument(
-                            (String) arg.get("name"),
-                            (String) arg.get("desc"),
-                            true,
-                            toJavaType((String) arg.get("type")));
-                    });
-                    def.register();
-                });
+            listTools().forEach(this::register);
         } catch (J4pException e) {
             Log.error(e.getMessage(), e);
         }
+    }
+
+    void register(MBeanTool tool) {
+        String toolName = resolveToolName(tool);
+        ToolManager.ToolDefinition def = toolManager.newTool(toolName)
+            .setDescription(tool.description())
+            .setHandler(args -> {
+                try {
+                    Optional<Object> response = jolokiaClient.exec(
+                        tool.objectName(),
+                        tool.operation(),
+                        toolArgsToArgs(args.args(), tool.args()));
+                    return ToolResponse.success(response.orElse("null").toString());
+                } catch (MalformedObjectNameException | J4pException | IllegalArgumentException e) {
+                    return ToolResponse.error(e.getMessage());
+                }
+            });
+        tool.args().forEach(arg -> {
+            def.addArgument(
+                (String) arg.get("name"),
+                (String) arg.get("desc"),
+                true,
+                toJavaType((String) arg.get("type")));
+        });
+        def.register();
+    }
+
+    String resolveToolName(MBeanTool tool) {
+        // Tool name must be <= 64 chars for Claude Desktop
+        String toolName = tool.name();
+        if (toolName.length() > 64) {
+            toolName = toolName.substring(0, 64);
+        }
+        int count = 1;
+        while (toolManager.getTool(toolName) != null) {
+            toolName = toolName.replaceFirst(".$", String.valueOf(count));
+            count++;
+        }
+        return toolName;
     }
 
     Type toJavaType(String type) {
@@ -186,20 +204,43 @@ public class JolokiaMcpServer {
             .map(prop -> prop.split("="))
             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1], (v1, v2) -> v2, TreeMap::new));
         StringBuilder shortProps = new StringBuilder();
+        // Take at most 2 props
+        int count = 0;
         for (String key : propMap.keySet()) {
             if (SPECIAL_PROP_KEYS.contains(key)) {
                 if (!shortProps.isEmpty()) {
-                    shortProps.append("-");
+                    shortProps.append("_");
                 }
-                shortProps.append(propMap.get(key));
+                shortProps.append(sanitiseName(propMap.get(key)));
+                count++;
+            }
+            if (count >= 2) {
+                break;
             }
         }
-        // If there's no special key in prop list
-        if (shortProps.isEmpty()) {
-            shortProps.append(String.join("-", propMap.values()));
+        // If there are less than 2 special keys in prop list
+        if (count < 2 && propMap.size() > count) {
+            shortProps.append(
+                propMap.values().stream()
+                    .filter(value -> !SPECIAL_PROP_KEYS.contains(value))
+                    .limit(2 - count)
+                    .map(this::sanitiseName)
+                    .collect(Collectors.joining("_")));
         }
 
         return shortDomain + "-" + shortProps;
+    }
+
+    /**
+     * Drop all characters that are negative for a tool name, plus "_" and "-"
+     * to earn extra margin for the tool name (<= 64 chars for Claude Desktop).
+     * Also shrink the name to at most 20 chars if it's longer.
+     */
+    String sanitiseName(String name) {
+        String sanitised = TOOL_NAME_NEGATIVE_PATTERN.matcher(name)
+            .replaceAll("")
+            .replaceAll("[_-]", "");
+        return sanitised.substring(0, Math.min(sanitised.length(), 20));
     }
 
     record MBeanTool(
