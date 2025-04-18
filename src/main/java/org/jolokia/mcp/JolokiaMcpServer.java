@@ -76,6 +76,7 @@ public class JolokiaMcpServer {
 
     void register(MBeanTool tool) {
         String toolName = resolveToolName(tool);
+        Log.infof("Registering tool: %s (%s)", toolName, toolName.length());
         ToolManager.ToolDefinition def = toolManager.newTool(toolName)
             .setDescription(tool.description())
             .setHandler(args -> {
@@ -103,7 +104,7 @@ public class JolokiaMcpServer {
         // Tool name must be <= 64 chars for Claude Desktop
         String toolName = tool.name();
         if (toolName.length() > 64) {
-            toolName = toolName.substring(0, 64);
+            toolName = toolName.substring(0, 63);
         }
         int count = 1;
         while (toolManager.getTool(toolName) != null) {
