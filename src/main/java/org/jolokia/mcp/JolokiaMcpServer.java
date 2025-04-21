@@ -20,10 +20,12 @@ import javax.management.MalformedObjectNameException;
 
 import jakarta.inject.Inject;
 
+import io.quarkiverse.mcp.server.TextContent;
+import io.quarkiverse.mcp.server.Tool;
+import io.quarkiverse.mcp.server.ToolArg;
 import io.quarkiverse.mcp.server.ToolManager;
 import io.quarkiverse.mcp.server.ToolResponse;
 import io.quarkus.logging.Log;
-import io.quarkus.runtime.Startup;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
@@ -65,12 +67,71 @@ public class JolokiaMcpServer {
     @Inject
     ToolManager toolManager;
 
-    @Startup
-    void registerTools() {
+    @Tool(description = "List available MBeans from the JVM")
+    ToolResponse listMBeans() {
         try {
-            listTools().forEach(this::register);
+            List<String> mbeans = jolokiaClient.listMBeans();
+            return ToolResponse.success(mbeans.stream().map(TextContent::new).toList());
         } catch (J4pException e) {
-            Log.error(e.getMessage(), e);
+            return ToolResponse.error(e.getMessage());
+        }
+    }
+
+    @Tool(description = "List available operations for a given MBean")
+    ToolResponse listOperations(@ToolArg(description = "MBean name") String mbean) {
+        try {
+            JSONObject ops = jolokiaClient.listOperations(mbean);
+            return ToolResponse.success(ops.toJSONString());
+        } catch (J4pException e) {
+            return ToolResponse.error(e.getMessage());
+        }
+    }
+
+    @Tool(description = "List available attributes for a given MBean")
+    ToolResponse listAttributes(@ToolArg(description = "MBean name") String mbean) {
+        try {
+            JSONObject attrs = jolokiaClient.listAttributes(mbean);
+            return ToolResponse.success(attrs.toJSONString());
+        } catch (J4pException e) {
+            return ToolResponse.error(e.getMessage());
+        }
+    }
+
+    @Tool(description = "Read an attribute from a given MBean")
+    ToolResponse read(
+        @ToolArg(description = "MBean name") String mbean,
+        @ToolArg(description = "Attribute name") String attribute) {
+        try {
+            Optional<Object> response = jolokiaClient.read(mbean, attribute);
+            return ToolResponse.success(response.orElse("null").toString());
+        } catch (MalformedObjectNameException | J4pException e) {
+            return ToolResponse.error(e.getMessage());
+        }
+    }
+
+    @Tool(description = "Set the value to an attribute of a given MBean")
+    ToolResponse write(
+        @ToolArg(description = "MBean name") String mbean,
+        @ToolArg(description = "Attribute name") String attribute,
+        @ToolArg(description = "Attribute value") Object value) {
+        try {
+            Optional<Object> response = jolokiaClient.write(mbean, attribute, value);
+            return ToolResponse.success(response.orElse("null").toString());
+        } catch (MalformedObjectNameException | J4pException e) {
+            return ToolResponse.error(e.getMessage());
+        }
+    }
+
+    @Tool(description = "Execute an operation on a given MBean")
+    ToolResponse execute(
+        @ToolArg(description = "MBean name") String mbean,
+        @ToolArg(description = "Operation name") String operation,
+        @ToolArg(description = "Arguments") Object... args) {
+        try {
+            Optional<Object> response = jolokiaClient.exec(mbean, operation, args);
+            return ToolResponse.success(response.orElse("null").toString());
+        } catch (MalformedObjectNameException | J4pException e) {
+            return ToolResponse.error(e.getMessage());
         }
     }
 
@@ -139,7 +200,7 @@ public class JolokiaMcpServer {
     }
 
     List<MBeanTool> listTools() throws J4pException {
-        JSONObject domains = jolokiaClient.list();
+        JSONObject domains = jolokiaClient.list(null);
         return domains.entrySet().stream()
             .filter(d -> !DENYLIST_DOMAINS.contains(d.getKey()))
             .flatMap(d -> domain(d.getKey(), (JSONObject) d.getValue()))
