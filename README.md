@@ -1,5 +1,7 @@
 # Jolokia MCP Server
 
+[![Test](https://github.com/tadayosi/jolokia-mcp/actions/workflows/test.yaml/badge.svg)](https://github.com/tadayosi/jolokia-mcp/actions/workflows/test.yaml)
+
 MCP server for [Jolokia](https://jolokia.org/), a JMX-HTTP bridge for Java applications. This MCP server enables an LLM to manage a Java application using JMX API via Jolokia.
 
 ## Build
@@ -11,7 +13,7 @@ mvn clean install
 ## Run
 
 ```console
-java -jar target/jolokia-mcp-server-0.1.0-SNAPSHOT.jar [Jolokia URL]
+java -jar target/jolokia-mcp-server-0.3.0-SNAPSHOT.jar [Jolokia URL]
 ```
 
 Using JBang:
