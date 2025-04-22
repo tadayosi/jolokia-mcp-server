@@ -78,7 +78,7 @@ public class JolokiaMcpServer {
     }
 
     @Tool(description = "List available operations for a given MBean")
-    ToolResponse listOperations(@ToolArg(description = "MBean name") String mbean) {
+    ToolResponse listMBeanOperations(@ToolArg(description = "MBean name") String mbean) {
         try {
             JSONObject ops = jolokiaClient.listOperations(mbean);
             return ToolResponse.success(ops.toJSONString());
@@ -88,7 +88,7 @@ public class JolokiaMcpServer {
     }
 
     @Tool(description = "List available attributes for a given MBean")
-    ToolResponse listAttributes(@ToolArg(description = "MBean name") String mbean) {
+    ToolResponse listMBeanAttributes(@ToolArg(description = "MBean name") String mbean) {
         try {
             JSONObject attrs = jolokiaClient.listAttributes(mbean);
             return ToolResponse.success(attrs.toJSONString());
@@ -98,7 +98,7 @@ public class JolokiaMcpServer {
     }
 
     @Tool(description = "Read an attribute from a given MBean")
-    ToolResponse read(
+    ToolResponse readMBeanAttribute(
         @ToolArg(description = "MBean name") String mbean,
         @ToolArg(description = "Attribute name") String attribute) {
         try {
@@ -110,7 +110,7 @@ public class JolokiaMcpServer {
     }
 
     @Tool(description = "Set the value to an attribute of a given MBean")
-    ToolResponse write(
+    ToolResponse writeMBeanAttribute(
         @ToolArg(description = "MBean name") String mbean,
         @ToolArg(description = "Attribute name") String attribute,
         @ToolArg(description = "Attribute value") Object value) {
@@ -123,7 +123,7 @@ public class JolokiaMcpServer {
     }
 
     @Tool(description = "Execute an operation on a given MBean")
-    ToolResponse execute(
+    ToolResponse executeMBeanOperation(
         @ToolArg(description = "MBean name") String mbean,
         @ToolArg(description = "Operation name") String operation,
         @ToolArg(description = "Arguments") Object... args) {
