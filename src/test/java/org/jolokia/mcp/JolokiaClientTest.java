@@ -23,7 +23,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import org.junit.jupiter.api.Test;
 
+import static org.jolokia.mcp.JolokiaClient.toPath;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @QuarkusTest
@@ -36,12 +39,27 @@ class JolokiaClientTest {
 
     @Test
     void testList() throws Exception {
-        assertNotNull(jolokiaClient.list());
+        assertNotNull(jolokiaClient.list(null));
+    }
+
+    @Test
+    void testToPath() {
+        assertEquals("java.lang/type=Memory", toPath("java.lang:type=Memory"));
+        assertEquals("test/name=\"a!/b!/c\",type=Memory", toPath("test:name=\"a/b/c\",type=Memory"));
+    }
+
+    @Test
+    void testRead() throws Exception {
+        assertNotNull(jolokiaClient.read("java.lang:type=OperatingSystem", "Name").orElse(null));
+    }
+
+    @Test
+    void testWrite() throws Exception {
+        assertNotNull(jolokiaClient.write("java.lang:type=Memory", "Verbose", true).orElse(null));
     }
 
     @Test
     void testExec() {
         assertDoesNotThrow(() -> jolokiaClient.exec("java.lang:type=Memory", "gc"));
     }
-
 }
