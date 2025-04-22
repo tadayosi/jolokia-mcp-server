@@ -48,7 +48,7 @@ public class TestUtil {
      * @param port port to check
      * @return true if the port is still free
      */
-    @SuppressWarnings({ "PMD.SystemPrintln" })
+    @SuppressWarnings({"PMD.SystemPrintln"})
     public static boolean trySocket(int port) throws IOException {
         InetAddress address = Inet4Address.getByName("localhost");
         try (ServerSocket s = new ServerSocket()) {

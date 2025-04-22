@@ -16,25 +16,16 @@
  */
 package org.jolokia.mcp;
 
-import javax.management.MalformedObjectNameException;
-
-import jakarta.enterprise.context.ApplicationScoped;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.management.MalformedObjectNameException;
+import jakarta.enterprise.context.ApplicationScoped;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
-import org.jolokia.client.request.J4pExecRequest;
-import org.jolokia.client.request.J4pExecResponse;
-import org.jolokia.client.request.J4pListRequest;
-import org.jolokia.client.request.J4pListResponse;
-import org.jolokia.client.request.J4pReadRequest;
-import org.jolokia.client.request.J4pReadResponse;
-import org.jolokia.client.request.J4pRequest;
-import org.jolokia.client.request.J4pWriteRequest;
-import org.jolokia.client.request.J4pWriteResponse;
+import org.jolokia.client.request.*;
 import org.jolokia.json.JSONObject;
 
 @ApplicationScoped
