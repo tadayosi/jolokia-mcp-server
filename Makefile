@@ -1,4 +1,4 @@
-RUNNER ?= $(shell pwd)/target/jolokia-mcp-0.2.0-SNAPSHOT-runner.jar
+RUNNER ?= $(shell pwd)/target/jolokia-mcp-0.3.0-SNAPSHOT-runner.jar
 
 mcp-inspector:
 	npx @modelcontextprotocol/inspector java -jar ${RUNNER} $(ARGS)
