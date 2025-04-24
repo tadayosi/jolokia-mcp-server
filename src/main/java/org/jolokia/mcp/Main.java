@@ -23,9 +23,7 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 public class Main {
 
     public static void main(String... args) {
-        if (args.length > 0) {
-            System.setProperty("jolokia.mcp.url", args[0]);
-        }
+        JolokiaMcpConfigSource.setup(args);
         Quarkus.run(args);
     }
 }
