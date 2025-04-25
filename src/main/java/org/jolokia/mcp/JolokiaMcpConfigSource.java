@@ -18,6 +18,7 @@ package org.jolokia.mcp;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ public class JolokiaMcpConfigSource implements ConfigSource {
     private static final Map<String, String> configuration = new HashMap<>();
 
     static void setup(String... args) {
-        Arrays.stream(args)
+        List<String> remains = Arrays.stream(args)
             .filter(arg -> {
                 if (arg.startsWith("--") || arg.startsWith("-D")) {
                     String[] parts = arg.substring(2).split("=");
@@ -40,7 +41,9 @@ public class JolokiaMcpConfigSource implements ConfigSource {
                     return false;
                 }
                 return !arg.startsWith("-");
-            })
+            }).
+            toList();
+        remains.stream()
             .findFirst()
             .ifPresent(arg -> configuration.put("jolokia.mcp.url", arg));
 
