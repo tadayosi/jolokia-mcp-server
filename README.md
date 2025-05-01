@@ -1,6 +1,6 @@
 # Jolokia MCP Server
 
-[![Test](https://github.com/tadayosi/jolokia-mcp/actions/workflows/test.yaml/badge.svg)](https://github.com/tadayosi/jolokia-mcp/actions/workflows/test.yaml)
+[![Test](https://github.com/jolokia/jolokia-mcp-server/actions/workflows/test.yaml/badge.svg)](https://github.com/jolokia/jolokia-mcp-server/actions/workflows/test.yaml)
 
 MCP server for [Jolokia](https://jolokia.org/), a JMX-HTTP bridge for Java applications. This MCP server enables an LLM to manage a Java application using JMX API via Jolokia.
 
@@ -19,5 +19,5 @@ java -jar target/jolokia-mcp-server-0.3.0-SNAPSHOT.jar [Jolokia URL]
 Using JBang:
 
 ```console
-jbang run --repos=jitpack com.github.tadayosi:jolokia-mcp:main-SNAPSHOT:runner
+jbang run org.jolokia.mcp:jolokia-mcp-server:0.3.0:runner
 ```
