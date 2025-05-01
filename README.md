@@ -19,5 +19,5 @@ java -jar target/jolokia-mcp-server-0.3.0-SNAPSHOT.jar [Jolokia URL]
 Using JBang:
 
 ```console
-jbang run org.jolokia.mcp:jolokia-mcp-server:0.3.0:runner
+jbang run org.jolokia:jolokia-mcp-server:0.3.1:runner
 ```
