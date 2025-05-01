@@ -52,6 +52,19 @@
     <tag>HEAD</tag>
   </scm>
 
+  <distributionManagement>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <name>Nexus Release Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
@@ -74,7 +87,6 @@
     <jetty.version>11.0.25</jetty.version>
 
     <!-- Plugin versions -->
-    <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
     <compiler-plugin.version>3.14.0</compiler-plugin.version>
     <gpg-plugin.version>3.2.7</gpg-plugin.version>
     <javadoc-plugin.version>3.11.2</javadoc-plugin.version>
@@ -301,17 +313,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-          <!-- Sonatype Central -->
-          <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>${central-publishing-maven-plugin.version}</version>
-            <extensions>true</extensions>
-            <configuration>
-              <publishingServerId>sonatype-nexus-staging</publishingServerId>
-              <autoPublish>true</autoPublish>
-            </configuration>
           </plugin>
         </plugins>
       </build>
