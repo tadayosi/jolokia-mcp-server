@@ -4,11 +4,59 @@
 
 MCP server for [Jolokia](https://jolokia.org/), a JMX-HTTP bridge for Java applications. This MCP server enables an LLM to manage a Java application using JMX API via Jolokia.
 
-## Download
+## Features
 
-- [jolokia-mcp-server-0.3.3-runner.jar](https://github.com/jolokia/jolokia-mcp-server/releases/download/v0.3.3/jolokia-mcp-server-0.3.3-runner.jar)
+This MCP server connects to a single JVM at startup and provides the following features on the connected JVM:
+
+- List MBeans from the connected JVM
+- List operations for a MBean
+- List attributes for a MBean
+- Read/write attributes of a MBean
+- Execute operations on a MBean
+
+### Tools
+
+This MCP server provides 6 tools.
+
+- **listMBeans**
+  - List available MBeans from the JVM
+  - Output (`List<String>`): List of all MBean object names in the JVM
+- **listMBeanOperations**
+  - List available operations for a given MBean
+  - Inputs:
+    - `mbean` (`String`): MBean name
+  - Output (`String`): JSON-formatted definitions of all available operations for the given MBean
+- **listMBeanAttributes**
+  - List available attributes for a given MBean
+  - Inputs:
+    - `mbean` (`String`): MBean name
+  - Output (`String`): JSON-formatted definitions of all available attributes for the given MBean
+- **readMBeanAttribute**
+  - Read an attribute from a given MBean
+  - Inputs:
+    - `mbean` (`String`): MBean name
+    - `attribute` (`String`): Attribute name
+  - Output (`String`): String representation of the given attribute's value or "null"
+- **writeMBeanAttribute**
+  - Set the value to an attribute of a given MBean
+  - Inputs:
+    - `mbean` (`String`): MBean name
+    - `attribute` (`String`): Attribute name
+    - `value` (`Object`): Attribute value
+  - Output (`String`): String representation of the given attribute's previous value or "null"
+- **executeMBeanOperation**
+  - Execute an operation on a given MBean
+  - Inputs:
+    - `mbean` (`String`): MBean name
+    - `operation` (`String`): Operation name
+    - `args` (`Object[]`): Arguments
+  - Output (`String`): String representation of the return value of the operation or "null"
 
 ## Install
+
+Download the MCP server runner jar:
+
+- [jolokia-mcp-server-0.3.3-runner.jar](https://github.com/jolokia/jolokia-mcp-server/releases/download/v0.3.3/jolokia-mcp-server-0.3.3-runner.jar)
 
 To install the Jolokia MCP server to a MCP host, add the following entry to the MCP settings:
 
@@ -26,6 +74,21 @@ To install the Jolokia MCP server to a MCP host, add the following entry to the 
 }
 ```
 
+Or if you prefer using [JBang](https://www.jbang.dev/) (no need for downloading the jar with this method):
+
+```json
+{
+  "mcpServers": {
+    "jolokia": {
+      "command": "jbang",
+      "args": [
+        "org.jolokia.mcp:jolokia-mcp-server:0.3.3:runner"
+      ]
+    }
+  }
+}
+```
+
 ## Run
 
 Run it with `java -jar`:
@@ -34,11 +97,37 @@ Run it with `java -jar`:
 java -jar jolokia-mcp-server-0.3.3-runner.jar [Jolokia URL]
 ```
 
-Using [JBang](https://www.jbang.dev/), you don't need to download the jar. You can directly run it with the Maven GAV (`org.jolokia.mcp:jolokia-mcp-server:0.3.3:runner`):
+Using JBang, you can directly run it with the Maven GAV (`org.jolokia.mcp:jolokia-mcp-server:0.3.3:runner`):
 
 ```console
-jbang run org.jolokia.mcp:jolokia-mcp-server:0.3.3:runner
+jbang org.jolokia.mcp:jolokia-mcp-server:0.3.3:runner
 ```
+
+### HTTP/SSE Transport
+
+By default, this MCP server runs with stdio transport. To switch it to HTTP/SSE transport, use the `--sse` option:
+
+```console
+java -jar jolokia-mcp-server-0.3.3-runner.jar --sse
+```
+
+The HTTP/SSE transport endpoint by default launches at <http://localhost:8080/mcp/sse>.
+
+## Config Options
+
+| Parameter/Option | Default | Description |
+| ---------------- | ------- | ----------- |
+| Positional parameter | `http://localhost:8778/jolokia` | The Jolokia endpoint URL the MCP server connects to |
+| `--sse` | `false` (stdio) | Enable HTTP/SSE transport |
+| `-D*=*` | | System properties |
+
+The system properties that are relevant to the MCP server:
+
+| System property | Default | Description |
+| --------------- | ------- | ----------- |
+| `quarkus.http.port` | `8080` | (SSE) The port for the SSE endpoint |
+| `quarkus.mcp.server.sse.root-path` | `mcp` | (SSE) The root path for the SSE endpoint (`http://localhost:8080/mcp/sse`) |
+| `jolokia.mcp.url` | `http://localhost:8778/jolokia` | Equivalent to the positional parameter |
 
 ## Build
 
