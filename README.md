@@ -56,7 +56,7 @@ This MCP server provides 6 tools.
 
 Download the MCP server runner jar:
 
-- [jolokia-mcp-server-0.3.3-runner.jar](https://github.com/jolokia/jolokia-mcp-server/releases/download/v0.3.3/jolokia-mcp-server-0.3.3-runner.jar)
+- [jolokia-mcp-server-0.3.5-runner.jar](https://github.com/jolokia/jolokia-mcp-server/releases/download/v0.3.5/jolokia-mcp-server-0.3.5-runner.jar)
 
 To install the Jolokia MCP server to a MCP host, add the following entry to the MCP settings:
 
@@ -67,7 +67,7 @@ To install the Jolokia MCP server to a MCP host, add the following entry to the 
       "command": "java",
       "args": [
         "-jar",
-        "<path-to-the-runner-jar>/jolokia-mcp-0.3.3-runner.jar"
+        "<path-to-the-runner-jar>/jolokia-mcp-0.3.5-runner.jar"
       ]
     }
   }
@@ -82,7 +82,7 @@ Or if you prefer using [JBang](https://www.jbang.dev/) (no need for downloading 
     "jolokia": {
       "command": "jbang",
       "args": [
-        "org.jolokia.mcp:jolokia-mcp-server:0.3.3:runner"
+        "org.jolokia.mcp:jolokia-mcp-server:0.3.5:runner"
       ]
     }
   }
@@ -94,13 +94,13 @@ Or if you prefer using [JBang](https://www.jbang.dev/) (no need for downloading 
 Run it with `java -jar`:
 
 ```console
-java -jar jolokia-mcp-server-0.3.3-runner.jar [Jolokia URL]
+java -jar jolokia-mcp-server-0.3.5-runner.jar [Jolokia URL]
 ```
 
-Using JBang, you can directly run it with the Maven GAV (`org.jolokia.mcp:jolokia-mcp-server:0.3.3:runner`):
+Using JBang, you can directly run it with the Maven GAV (`org.jolokia.mcp:jolokia-mcp-server:0.3.5:runner`):
 
 ```console
-jbang org.jolokia.mcp:jolokia-mcp-server:0.3.3:runner
+jbang org.jolokia.mcp:jolokia-mcp-server:0.3.5:runner
 ```
 
 ### HTTP/SSE Transport
@@ -108,7 +108,7 @@ jbang org.jolokia.mcp:jolokia-mcp-server:0.3.3:runner
 By default, this MCP server runs with stdio transport. To switch it to HTTP/SSE transport, use the `--sse` option:
 
 ```console
-java -jar jolokia-mcp-server-0.3.3-runner.jar --sse
+java -jar jolokia-mcp-server-0.3.5-runner.jar --sse
 ```
 
 The HTTP/SSE transport endpoint by default launches at <http://localhost:8080/mcp/sse>.
