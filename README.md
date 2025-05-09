@@ -4,6 +4,8 @@
 
 MCP server for [Jolokia](https://jolokia.org/), a JMX-HTTP bridge for Java applications. This MCP server enables an LLM to manage a Java application using JMX API via Jolokia.
 
+https://github.com/user-attachments/assets/624ec93b-da69-49b5-be8f-02f2ff14bd2e
+
 ## Features
 
 This MCP server connects to a single JVM at startup and provides the following features on the connected JVM:
