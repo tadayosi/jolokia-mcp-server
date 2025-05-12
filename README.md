@@ -4,7 +4,14 @@
 
 MCP server for [Jolokia](https://jolokia.org/), a JMX-HTTP bridge for Java applications. This MCP server enables an LLM to manage a Java application using JMX API via Jolokia.
 
-https://github.com/user-attachments/assets/624ec93b-da69-49b5-be8f-02f2ff14bd2e
+<https://github.com/user-attachments/assets/624ec93b-da69-49b5-be8f-02f2ff14bd2e>
+
+## Attach Jolokia agent to your Java application
+
+To use this MCP server to operate your Java application with JMX, you need to attach a Jolokia agent to your Java application.
+
+Read the Jolokia manual for how to attach a Jolokia agent to a Java application:
+<https://jolokia.org/reference/html/manual/agents.html>
 
 ## Features
 
