@@ -26,7 +26,9 @@ import org.junit.jupiter.api.Test;
 import static org.jolokia.mcp.JolokiaClient.toPath;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 @QuarkusTest
 @TestProfile(JettyTestResource.class)
@@ -38,7 +40,12 @@ class JolokiaClientTest {
 
     @Test
     void testList() throws Exception {
-        assertNotNull(jolokiaClient.list(null));
+        var result = jolokiaClient.listMBeans();
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        // Test cache
+        var result2 = jolokiaClient.listMBeans();
+        assertSame(result, result2);
     }
 
     @Test
