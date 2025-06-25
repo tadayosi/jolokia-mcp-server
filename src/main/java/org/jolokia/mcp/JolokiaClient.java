@@ -32,6 +32,7 @@ import org.jolokia.json.JSONObject;
 public class JolokiaClient {
 
     J4pClient jolokiaClient;
+    MBeanListCache mbeanListCache;
 
     public JolokiaClient(@ConfigProperty(name = "jolokia.mcp.url", defaultValue = "http://localhost:8778/jolokia")
                          String jolokiaUrl) {
@@ -39,11 +40,17 @@ public class JolokiaClient {
     }
 
     public List<String> listMBeans() throws J4pException {
+        if (mbeanListCache != null && mbeanListCache.isValid()) {
+            return mbeanListCache.getMBeans();
+        }
+
         JSONObject domains = list(null);
-        return domains.entrySet().stream()
+        List<String> result = domains.entrySet().stream()
             .flatMap(domain -> ((JSONObject) domain.getValue()).keySet().stream()
                 .map(props -> domain.getKey() + ":" + props))
             .collect(Collectors.toList());
+        mbeanListCache = new MBeanListCache(result);
+        return result;
     }
 
     public JSONObject listOperations(String mbean) throws J4pException {
