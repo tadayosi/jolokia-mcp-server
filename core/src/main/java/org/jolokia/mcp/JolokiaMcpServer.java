@@ -18,27 +18,25 @@ package org.jolokia.mcp;
 
 import java.util.List;
 import java.util.Optional;
-import javax.management.MalformedObjectNameException;
 import jakarta.inject.Inject;
 
 import io.quarkiverse.mcp.server.TextContent;
 import io.quarkiverse.mcp.server.Tool;
 import io.quarkiverse.mcp.server.ToolArg;
 import io.quarkiverse.mcp.server.ToolResponse;
-import org.jolokia.client.exception.J4pException;
 import org.jolokia.json.JSONObject;
 
 public class JolokiaMcpServer {
 
     @Inject
-    JolokiaClient jolokiaClient;
+    JolokiaService jolokiaClient;
 
     @Tool(description = "List available MBeans from the JVM")
     ToolResponse listMBeans() {
         try {
             List<String> mbeans = jolokiaClient.listMBeans();
             return ToolResponse.success(mbeans.stream().map(TextContent::new).toList());
-        } catch (J4pException e) {
+        } catch (Exception e) {
             return ToolResponse.error(e.getMessage());
         }
     }
@@ -48,7 +46,7 @@ public class JolokiaMcpServer {
         try {
             JSONObject ops = jolokiaClient.listOperations(mbean);
             return ToolResponse.success(ops.toJSONString());
-        } catch (J4pException e) {
+        } catch (Exception e) {
             return ToolResponse.error(e.getMessage());
         }
     }
@@ -58,7 +56,7 @@ public class JolokiaMcpServer {
         try {
             JSONObject attrs = jolokiaClient.listAttributes(mbean);
             return ToolResponse.success(attrs.toJSONString());
-        } catch (J4pException e) {
+        } catch (Exception e) {
             return ToolResponse.error(e.getMessage());
         }
     }
@@ -70,7 +68,7 @@ public class JolokiaMcpServer {
         try {
             Optional<Object> response = jolokiaClient.read(mbean, attribute);
             return ToolResponse.success(response.orElse("null").toString());
-        } catch (MalformedObjectNameException | J4pException e) {
+        } catch (Exception e) {
             return ToolResponse.error(e.getMessage());
         }
     }
@@ -83,7 +81,7 @@ public class JolokiaMcpServer {
         try {
             Optional<Object> response = jolokiaClient.write(mbean, attribute, value);
             return ToolResponse.success(response.orElse("null").toString());
-        } catch (MalformedObjectNameException | J4pException e) {
+        } catch (Exception e) {
             return ToolResponse.error(e.getMessage());
         }
     }
@@ -96,7 +94,7 @@ public class JolokiaMcpServer {
         try {
             Optional<Object> response = jolokiaClient.exec(mbean, operation, args);
             return ToolResponse.success(response.orElse("null").toString());
-        } catch (MalformedObjectNameException | J4pException e) {
+        } catch (Exception e) {
             return ToolResponse.error(e.getMessage());
         }
     }

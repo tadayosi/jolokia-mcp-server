@@ -54,6 +54,7 @@
   </scm>
 
   <modules>
+    <module>agent-jvm</module>
     <module>core</module>
     <module>server</module>
   </modules>
@@ -125,6 +126,11 @@
         <version>${project.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>io.quarkiverse.mcp</groupId>
+        <artifactId>quarkus-mcp-server-core</artifactId>
+        <version>${quarkiverse-mcp.version}</version>
+      </dependency>
       <dependency>
         <groupId>io.quarkiverse.mcp</groupId>
         <artifactId>quarkus-mcp-server-stdio</artifactId>

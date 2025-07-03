@@ -27,21 +27,59 @@
     <version>0.3.6-SNAPSHOT</version>
   </parent>
 
-  <artifactId>jolokia-mcp-core</artifactId>
+  <artifactId>jolokia-mcp-agent-jvm</artifactId>
   <version>0.3.6-SNAPSHOT</version>
 
   <name>${project.artifactId}</name>
-  <description>Jolokia MCP :: Core</description>
+  <description>Jolokia MCP :: Agent</description>
 
   <dependencies>
     <dependency>
-      <groupId>io.quarkiverse.mcp</groupId>
-      <artifactId>quarkus-mcp-server-core</artifactId>
+      <groupId>org.jolokia.mcp</groupId>
+      <artifactId>jolokia-mcp-core</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.jolokia</groupId>
-      <artifactId>jolokia-json</artifactId>
+      <artifactId>jolokia-server-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-service-serializer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-service-jmx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-service-discovery</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-service-history</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-service-jsr160</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-service-notif-pull</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-service-notif-sse</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-arc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkiverse.mcp</groupId>
+      <artifactId>quarkus-mcp-server-sse</artifactId>
     </dependency>
   </dependencies>
 </project>
