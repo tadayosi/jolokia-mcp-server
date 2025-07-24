@@ -278,10 +278,6 @@
           <version>${release-plugin.version}</version>
         </plugin>
         <plugin>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>${shade-plugin.version}</version>
-        </plugin>
-        <plugin>
           <artifactId>maven-source-plugin</artifactId>
           <version>${source-plugin.version}</version>
         </plugin>
