@@ -23,7 +23,7 @@
 
   <groupId>org.jolokia.mcp</groupId>
   <artifactId>jolokia-mcp-parent</artifactId>
-  <version>0.3.6-SNAPSHOT</version>
+  <version>0.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
@@ -54,6 +54,7 @@
   </scm>
 
   <modules>
+    <module>agent-jvm</module>
     <module>core</module>
     <module>server</module>
   </modules>
@@ -85,6 +86,7 @@
     <gpg-plugin.version>3.2.7</gpg-plugin.version>
     <javadoc-plugin.version>3.11.2</javadoc-plugin.version>
     <release-plugin.version>3.1.1</release-plugin.version>
+    <shade-plugin.version>3.6.0</shade-plugin.version>
     <source-plugin.version>3.3.1</source-plugin.version>
     <surefire-plugin.version>3.5.3</surefire-plugin.version>
   </properties>
@@ -125,6 +127,11 @@
         <version>${project.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>io.quarkiverse.mcp</groupId>
+        <artifactId>quarkus-mcp-server-core</artifactId>
+        <version>${quarkiverse-mcp.version}</version>
+      </dependency>
       <dependency>
         <groupId>io.quarkiverse.mcp</groupId>
         <artifactId>quarkus-mcp-server-stdio</artifactId>
@@ -269,6 +276,10 @@
         <plugin>
           <artifactId>maven-release-plugin</artifactId>
           <version>${release-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${shade-plugin.version}</version>
         </plugin>
         <plugin>
           <artifactId>maven-source-plugin</artifactId>
