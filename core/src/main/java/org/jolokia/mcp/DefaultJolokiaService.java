@@ -38,12 +38,12 @@ public class DefaultJolokiaService implements JolokiaService {
 
     @Override
     public JSONObject listOperations(String mbean) {
-        return null;
+        return new JSONObject();
     }
 
     @Override
     public JSONObject listAttributes(String mbean) {
-        return null;
+        return new JSONObject();
     }
 
     @Override
