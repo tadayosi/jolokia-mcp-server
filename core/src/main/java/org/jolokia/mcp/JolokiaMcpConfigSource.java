@@ -28,7 +28,7 @@ public class JolokiaMcpConfigSource implements ConfigSource {
 
     private static final Map<String, String> configuration = new HashMap<>();
 
-    static void setup(String... args) {
+    public static void setup(String... args) {
         List<String> remains = Arrays.stream(args)
             .filter(arg -> {
                 if (arg.startsWith("--") || arg.startsWith("-D")) {
@@ -46,7 +46,17 @@ public class JolokiaMcpConfigSource implements ConfigSource {
         remains.stream()
             .findFirst()
             .ifPresent(arg -> configuration.put("jolokia.mcp.url", arg));
+        setupSse();
+    }
 
+    public static void setup(Map<String, String> config, boolean setupSse) {
+        configuration.putAll(config);
+        if (setupSse) {
+            setupSse();
+        }
+    }
+
+    private static void setupSse() {
         boolean sse = Boolean.parseBoolean(configuration.get("sse"));
         if (sse) {
             configuration.put("quarkus.http.host-enabled", "true");
