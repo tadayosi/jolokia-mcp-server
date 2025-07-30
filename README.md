@@ -6,12 +6,24 @@ MCP server for [Jolokia](https://jolokia.org/), a JMX-HTTP bridge for Java appli
 
 <https://github.com/user-attachments/assets/624ec93b-da69-49b5-be8f-02f2ff14bd2e>
 
-## Attach Jolokia agent to your Java application
+## Distributions
 
-To use this MCP server to operate your Java application with JMX, you need to attach a Jolokia agent to your Java application.
+Since version 0.4, there are two distributions of Jolokia MCP Server:
 
-Read the Jolokia manual for how to attach a Jolokia agent to a Java application:
+- [Standalone MCP Server](#standalone-mcp-server)
+- [JVM Agent MCP Server](#jvm-agent-mpc-server)
+
+### Standalone MCP Server
+
+The standalone MCP Server acts as a typical MCP server: it registers with the MCP host via stdio or HTTP, and the MCP server itself communicates with the Java application to which the Jolokia agent is attached via JMX over HTTP.
+
+Therefore, it requires to attach a Jolokia agent to your Java application in order to use it to operate your Java application. Read the Jolokia manual for how to attach a Jolokia agent to a Java application:
+
 <https://jolokia.org/reference/html/manual/agents.html>
+
+### JVM Agent MPC Server
+
+On the other hand, the JVM Agent MCP Server works as a drop-in replacement for the [standard Jolokia JVM Agent](https://jolokia.org/reference/html/manual/agents.html#agents-jvm).
 
 ## Features
 
