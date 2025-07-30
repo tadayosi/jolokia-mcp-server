@@ -353,6 +353,8 @@
             <configuration>
               <publishingServerId>central</publishingServerId>
               <autoPublish>true</autoPublish>
+              <deploymentName>jolokia-mcp-${project.version}</deploymentName>
+              <waitUntil>uploaded</waitUntil>
             </configuration>
           </plugin>
         </plugins>
