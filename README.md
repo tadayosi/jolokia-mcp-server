@@ -6,12 +6,25 @@ MCP server for [Jolokia](https://jolokia.org/), a JMX-HTTP bridge for Java appli
 
 <https://github.com/user-attachments/assets/624ec93b-da69-49b5-be8f-02f2ff14bd2e>
 
-## Attach Jolokia agent to your Java application
+## Distributions
 
-To use this MCP server to operate your Java application with JMX, you need to attach a Jolokia agent to your Java application.
+Since version 0.4, the Jolokia MCP Server offers two distinct distributions to suit different deployment needs:
 
-Read the Jolokia manual for how to attach a Jolokia agent to a Java application:
+- [Standalone MCP Server](#standalone-mcp-server)
+- [JVM Agent MCP Server](#jvm-agent-mcp-server)
+
+### Standalone MCP Server
+
+The Standalone MCP Server acts as a conventional MCP server; it is registered to the MCP host with either stdio or HTTP, and the MCP server itself communicates with your Java application, which must have a Jolokia agent attached, via JMX over HTTP.
+
+To use the Standalone MCP Server, you'll first need to attach a Jolokia agent to your Java application. For detailed instructions on how to do this, please refer to the Jolokia manual:
 <https://jolokia.org/reference/html/manual/agents.html>
+
+### JVM Agent MCP Server
+
+In contrast, the JVM Agent MCP Server provides a streamlined, "drop-in" replacement for the [standard Jolokia JVM Agent](https://jolokia.org/reference/html/manual/agents.html#agents-jvm).
+
+With this distribution, you simply attach the MCP Server's JVM Agent to your application instead of the standard Jolokia JVM Agent. The JVM Agent MCP Server then directly opens an HTTP port for the MCP protocol, effectively transforming your Java application itself into an MCP Server.
 
 ## Features
 
@@ -63,6 +76,8 @@ This MCP server provides 6 tools.
 
 ## Install
 
+## Standalone
+
 Download the MCP server runner jar:
 
 - [jolokia-mcp-server-0.4.1-runner.jar](https://github.com/jolokia/jolokia-mcp-server/releases/download/v0.4.1/jolokia-mcp-server-0.4.1-runner.jar)
@@ -98,6 +113,32 @@ Or if you prefer using [JBang](https://www.jbang.dev/) (no need for downloading 
 }
 ```
 
+### JVM Agent
+
+Download the MCP server javaagent jar:
+
+- [jolokia-mcp-agent-jvm-0.4.1-javaagent.jar](https://github.com/jolokia/jolokia-mcp-server/releases/download/v0.4.1/jolokia-mcp-agent-jvm-0.4.1-javaagent.jar)
+
+Then run your Java application with `-javaagent` option:
+
+```console
+java -javaagent:jolokia-mcp-agent-jvm-0.4.1-javaagent.jar -jar your-app.jar
+```
+
+This would open the MCP HTTP transport at <http://localhost:8779/mcp>.
+
+To register the Jolokia MCP server to a MCP host, add the following entry to the MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "jolokia": {
+      "httpUrl": "http://localhost:8779/mcp"
+    }
+  }
+}
+```
+
 ## Run
 
 Run it with `java -jar`:
@@ -112,22 +153,22 @@ Using JBang, you can directly run it with the Maven GAV (`org.jolokia.mcp:joloki
 jbang org.jolokia.mcp:jolokia-mcp-server:0.4.1:runner
 ```
 
-### HTTP/SSE Transport
+### HTTP Transport
 
-By default, this MCP server runs with stdio transport. To switch it to HTTP/SSE transport, use the `--sse` option:
+By default, this MCP server runs with stdio transport. To switch it to HTTP transport, use the `--sse` option:
 
 ```console
 java -jar jolokia-mcp-server-0.4.1-runner.jar --sse
 ```
 
-The HTTP/SSE transport endpoint by default launches at <http://localhost:8080/mcp/sse>.
+The HTTP transport endpoint by default launches at <http://localhost:8080/mcp>.
 
 ## Config Options
 
 | Parameter/Option | Default | Description |
 | ---------------- | ------- | ----------- |
 | Positional parameter | `http://localhost:8778/jolokia` | The Jolokia endpoint URL the MCP server connects to |
-| `--sse` | `false` (stdio) | Enable HTTP/SSE transport |
+| `--sse` | `false` (stdio) | Enable HTTP transport |
 | `-D*=*` | | System properties |
 
 The system properties that are relevant to the MCP server:
