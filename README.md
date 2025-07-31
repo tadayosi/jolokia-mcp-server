@@ -76,7 +76,7 @@ This MCP server provides 6 tools.
 
 ## Install
 
-## Standalone
+### Standalone
 
 Download the MCP server runner jar:
 
