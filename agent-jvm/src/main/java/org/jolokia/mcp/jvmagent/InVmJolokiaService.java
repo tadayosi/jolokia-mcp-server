@@ -45,6 +45,7 @@ import org.jolokia.server.core.service.impl.ClasspathServiceCreator;
 import org.jolokia.server.core.service.impl.StdoutLogHandler;
 import org.jolokia.server.core.util.ClassUtil;
 import org.jolokia.server.core.util.LocalServiceFactory;
+import org.jolokia.server.core.vm.InVmRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
