@@ -1,6 +1,6 @@
-RELEASE_VERSION = 0.4.1
-DEV_VERSION = 0.4.1
-RUNNER ?= $(shell pwd)/target/jolokia-mcp-${DEV_VERSION}-SNAPSHOT-runner.jar
+RELEASE_VERSION = 0.4.2
+DEV_VERSION = 0.4.3-SNAPSHOT
+RUNNER ?= $(shell pwd)/target/jolokia-mcp-${DEV_VERSION}-runner.jar
 
 mcp-inspector:
 	npx @modelcontextprotocol/inspector
