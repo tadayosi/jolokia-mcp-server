@@ -1,5 +1,5 @@
-RELEASE_VERSION = 0.5.0
-DEV_VERSION = 0.5.1-SNAPSHOT
+RELEASE_VERSION = 0.5.1
+DEV_VERSION = 0.5.2-SNAPSHOT
 RUNNER ?= $(shell pwd)/target/jolokia-mcp-${DEV_VERSION}-runner.jar
 
 mcp-inspector:
