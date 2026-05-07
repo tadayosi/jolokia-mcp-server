@@ -15,3 +15,11 @@ download-runner:
 	curl -LO https://repo1.maven.org/maven2/org/jolokia/mcp/jolokia-mcp-server/${RELEASE_VERSION}/jolokia-mcp-server-${RELEASE_VERSION}-runner.jar.sha1
 	curl -LO https://repo1.maven.org/maven2/org/jolokia/mcp/jolokia-mcp-server/${RELEASE_VERSION}/jolokia-mcp-server-${RELEASE_VERSION}-runner.jar.sha256
 	curl -LO https://repo1.maven.org/maven2/org/jolokia/mcp/jolokia-mcp-server/${RELEASE_VERSION}/jolokia-mcp-server-${RELEASE_VERSION}-runner.jar.sha512
+
+download-javaagent:
+	curl -LO https://repo1.maven.org/maven2/org/jolokia/mcp/jolokia-mcp-agent-jvm/${RELEASE_VERSION}/jolokia-mcp-agent-jvm-${RELEASE_VERSION}-javaagent.jar
+	curl -LO https://repo1.maven.org/maven2/org/jolokia/mcp/jolokia-mcp-agent-jvm/${RELEASE_VERSION}/jolokia-mcp-agent-jvm-${RELEASE_VERSION}-javaagent.jar.asc
+	curl -LO https://repo1.maven.org/maven2/org/jolokia/mcp/jolokia-mcp-agent-jvm/${RELEASE_VERSION}/jolokia-mcp-agent-jvm-${RELEASE_VERSION}-javaagent.jar.md5
+	curl -LO https://repo1.maven.org/maven2/org/jolokia/mcp/jolokia-mcp-agent-jvm/${RELEASE_VERSION}/jolokia-mcp-agent-jvm-${RELEASE_VERSION}-javaagent.jar.sha1
+	curl -LO https://repo1.maven.org/maven2/org/jolokia/mcp/jolokia-mcp-agent-jvm/${RELEASE_VERSION}/jolokia-mcp-agent-jvm-${RELEASE_VERSION}-javaagent.jar.sha256
+	curl -LO https://repo1.maven.org/maven2/org/jolokia/mcp/jolokia-mcp-agent-jvm/${RELEASE_VERSION}/jolokia-mcp-agent-jvm-${RELEASE_VERSION}-javaagent.jar.sha512
