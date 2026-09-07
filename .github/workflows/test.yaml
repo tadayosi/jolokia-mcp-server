@@ -12,17 +12,17 @@ on:
     paths-ignore:
       - '**.md'
 
+permissions:
+  contents: read
+
 jobs:
   build:
-
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
         java: [17, 21]
-
     runs-on: ${{ matrix.os }}
-
     steps:
       - uses: actions/checkout@v7
       - name: Set up JDK
