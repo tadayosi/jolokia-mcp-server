@@ -26,6 +26,13 @@ import org.eclipse.microprofile.config.spi.ConfigSource;
 
 public class JolokiaMcpConfigSource implements ConfigSource {
 
+    private static final String QUARKUS_HTTP_HOST_ENABLED = "quarkus.http.host-enabled";
+    private static final String QUARKUS_HTTP_PORT = "quarkus.http.port";
+    private static final String QUARKUS_MCP_SERVER_STDIO_ENABLED = "quarkus.mcp.server.stdio.enabled";
+    private static final String QUARKUS_MCP_SERVER_HTTP_ROOT_PATH = "quarkus.mcp.server.http.root-path";
+    private static final String JOLOKIA_MCP_URL = "jolokia.mcp.url";
+    private static final String JOLOKIA_MCP_PREFERRED_HTTP_METHOD = "jolokia.mcp.preferred-http-method";
+
     private static final Map<String, String> configuration = new HashMap<>();
 
     public static void setup(String... args) {
@@ -41,11 +48,17 @@ public class JolokiaMcpConfigSource implements ConfigSource {
                     return false;
                 }
                 return !arg.startsWith("-");
-            }).
-            toList();
+            })
+            .toList();
         remains.stream()
             .findFirst()
-            .ifPresent(arg -> configuration.put("jolokia.mcp.url", arg));
+            .ifPresent(arg -> configuration.put(JOLOKIA_MCP_URL, arg));
+
+        // Set up options
+        setupPort();
+        setupRoot();
+        setupMethod();
+        // Set up SSE last as other options can affect it
         setupSse();
     }
 
@@ -56,15 +69,50 @@ public class JolokiaMcpConfigSource implements ConfigSource {
         }
     }
 
+    /**
+     * Convert --port to `quarkus.http.port`.
+     */
+    private static void setupPort() {
+        if (configuration.containsKey("port")) {
+            int port = Integer.parseInt(configuration.get("port"));
+            // System property precedes over the custom option if it's set
+            configuration.putIfAbsent(QUARKUS_HTTP_PORT, String.valueOf(port));
+            // SSE is always enabled when the option is configured
+            configuration.put("sse", "true");
+        }
+    }
+
+    /**
+     * Convert --root to `quarkus.mcp.server.http.root-path`.
+     */
+    private static void setupRoot() {
+        if (configuration.containsKey("root")) {
+            String root = configuration.get("root");
+            // System property precedes over the custom option if it's set
+            configuration.putIfAbsent(QUARKUS_MCP_SERVER_HTTP_ROOT_PATH, root);
+            // SSE is always enabled when the option is configured
+            configuration.put("sse", "true");
+        }
+    }
+
+    /**
+     * Convert --method to `jolokia.mcp.preferred-http-method`.
+     */
+    private static void setupMethod() {
+        if (configuration.containsKey("method")) {
+            String method = configuration.get("method");
+            // System property precedes over the custom option if it's set
+            configuration.putIfAbsent(JOLOKIA_MCP_PREFERRED_HTTP_METHOD, method);
+        }
+    }
+
+    /**
+     * Convert --sse to `quarkus.*` properties.
+     */
     private static void setupSse() {
         boolean sse = Boolean.parseBoolean(configuration.get("sse"));
-        if (sse) {
-            configuration.put("quarkus.http.host-enabled", "true");
-            configuration.put("quarkus.mcp.server.stdio.enabled", "false");
-        } else {
-            configuration.put("quarkus.http.host-enabled", "false");
-            configuration.put("quarkus.mcp.server.stdio.enabled", "true");
-        }
+        configuration.put(QUARKUS_HTTP_HOST_ENABLED, sse ? "true" : "false");
+        configuration.put(QUARKUS_MCP_SERVER_STDIO_ENABLED, sse ? "false" : "true");
     }
 
     @Override
