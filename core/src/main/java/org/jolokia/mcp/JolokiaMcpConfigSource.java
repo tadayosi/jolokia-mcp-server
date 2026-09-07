@@ -58,14 +58,14 @@ public class JolokiaMcpConfigSource implements ConfigSource {
         setupPort();
         setupRoot();
         setupMethod();
-        // Set up SSE last as other options can affect it
-        setupSse();
+        // Set up HTTP last as other options can affect it
+        setupHttp();
     }
 
-    public static void setup(Map<String, String> config, boolean setupSse) {
+    public static void setup(Map<String, String> config, boolean setupHttp) {
         configuration.putAll(config);
-        if (setupSse) {
-            setupSse();
+        if (setupHttp) {
+            setupHttp();
         }
     }
 
@@ -77,8 +77,8 @@ public class JolokiaMcpConfigSource implements ConfigSource {
             int port = Integer.parseInt(configuration.get("port"));
             // System property precedes over the custom option if it's set
             configuration.putIfAbsent(QUARKUS_HTTP_PORT, String.valueOf(port));
-            // SSE is always enabled when the option is configured
-            configuration.put("sse", "true");
+            // HTTP is always enabled when the option is configured
+            configuration.put("http", "true");
         }
     }
 
@@ -90,8 +90,8 @@ public class JolokiaMcpConfigSource implements ConfigSource {
             String root = configuration.get("root");
             // System property precedes over the custom option if it's set
             configuration.putIfAbsent(QUARKUS_MCP_SERVER_HTTP_ROOT_PATH, root);
-            // SSE is always enabled when the option is configured
-            configuration.put("sse", "true");
+            // HTTP is always enabled when the option is configured
+            configuration.put("http", "true");
         }
     }
 
@@ -107,12 +107,18 @@ public class JolokiaMcpConfigSource implements ConfigSource {
     }
 
     /**
-     * Convert --sse to `quarkus.*` properties.
+     * Convert --http to `quarkus.*` properties.
      */
-    private static void setupSse() {
-        boolean sse = Boolean.parseBoolean(configuration.get("sse"));
-        configuration.put(QUARKUS_HTTP_HOST_ENABLED, sse ? "true" : "false");
-        configuration.put(QUARKUS_MCP_SERVER_STDIO_ENABLED, sse ? "false" : "true");
+    private static void setupHttp() {
+        boolean http = Boolean.parseBoolean(configuration.get("http"));
+
+        // For backward compatibility
+        if (!http) {
+            http = Boolean.parseBoolean(configuration.get("sse"));
+        }
+
+        configuration.put(QUARKUS_HTTP_HOST_ENABLED, http ? "true" : "false");
+        configuration.put(QUARKUS_MCP_SERVER_STDIO_ENABLED, http ? "false" : "true");
     }
 
     @Override

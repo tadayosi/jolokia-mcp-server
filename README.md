@@ -155,22 +155,23 @@ jbang org.jolokia.mcp:jolokia-mcp-server:0.5.2:runner
 
 ### HTTP Transport
 
-By default, this MCP server runs with stdio transport. To switch it to HTTP transport, use the `--sse` option:
+By default, this MCP server runs with stdio transport. To switch it to HTTP transport, use the `--http` option:
 
 ```console
-java -jar jolokia-mcp-server-0.5.2-runner.jar --sse
+java -jar jolokia-mcp-server-0.5.2-runner.jar --http
 ```
 
-The HTTP transport endpoint by default launches at <http://localhost:8080/mcp/sse>.
+The HTTP transport endpoint by default launches at <http://localhost:8080/mcp>.
 
 ## Config Options
 
 | Parameter/Option | Default | Description |
 | ---------------- | ------- | ----------- |
 | Positional parameter | `http://localhost:8778/jolokia` | The Jolokia endpoint URL the MCP server connects to |
-| `--sse` | `false` (stdio) | Enable HTTP transport |
-| `--port=<number>` | `8080` | The port for the SSE endpoint. Equivalent to `-Dquarkus.http.port=<number>`. When the option is set, SSE is always enabled |
-| `--root=<path>` | `mcp` | The root path for the SSE endpoint. Equivalent to `-Dquarkus.mcp.server.http.root-path=<path>`. When the option is set, SSE is always enabled |
+| `--http` | `false` (stdio) | Enable HTTP transport |
+| `--sse` | `false` (stdio) | Deprecated. Use `--http` |
+| `--port=<number>` | `8080` | The port for the HTTP endpoint. Equivalent to `-Dquarkus.http.port=<number>`. When the option is set, HTTP is always enabled |
+| `--root=<path>` | `mcp` | The root path for the HTTP endpoint. Equivalent to `-Dquarkus.mcp.server.http.root-path=<path>`. When the option is set, HTTP is always enabled |
 | `--method=<GET\|POST>` | | Preferred HTTP method for Jolokia requests (`GET` or `POST`). Equivalent to `-Djolokia.mcp.preferred-http-method=<method>` |
 | `-D*=*` | | System properties |
 
@@ -178,8 +179,8 @@ The system properties that are relevant to the MCP server:
 
 | System property | Default | Description |
 | --------------- | ------- | ----------- |
-| `quarkus.http.port` | `8080` | (SSE) The port for the SSE endpoint |
-| `quarkus.mcp.server.http.root-path` | `mcp` | (SSE) The root path for the SSE endpoint (`http://localhost:8080/mcp/sse`) |
+| `quarkus.http.port` | `8080` | (HTTP) The port for the HTTP endpoint |
+| `quarkus.mcp.server.http.root-path` | `mcp` | (HTTP) The root path for the HTTP endpoint (`http://localhost:8080/mcp`) |
 | `jolokia.mcp.url` | `http://localhost:8778/jolokia` | Equivalent to the positional parameter |
 | `jolokia.mcp.preferred-http-method` | Not set | Preferred HTTP method for Jolokia requests (`GET` or `POST`) |
 
