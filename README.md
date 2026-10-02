@@ -1,6 +1,8 @@
 # Jolokia MCP Server
 
 [![Test](https://github.com/jolokia/jolokia-mcp-server/actions/workflows/test.yaml/badge.svg)](https://github.com/jolokia/jolokia-mcp-server/actions/workflows/test.yaml)
+[![Maven Central: jolokia-mcp-server](https://img.shields.io/maven-central/v/org.jolokia.mcp/jolokia-mcp-server?label=jolokia-mcp-server)](https://central.sonatype.com/artifact/org.jolokia.mcp/jolokia-mcp-server)
+[![Maven Central: jolokia-mcp-agent-jvm](https://img.shields.io/maven-central/v/org.jolokia.mcp/jolokia-mcp-agent-jvm?label=jolokia-mcp-agent-jvm)](https://central.sonatype.com/artifact/org.jolokia.mcp/jolokia-mcp-agent-jvm)
 
 MCP server for [Jolokia](https://jolokia.org/), a JMX-HTTP bridge for Java applications. This MCP server enables an LLM to manage a Java application using JMX API via Jolokia.
 
