@@ -74,6 +74,19 @@ This MCP server provides 6 tools.
     - `args` (`Object[]`): Arguments
   - Output (`String`): String representation of the return value of the operation or "null"
 
+## Jolokia Version Compatibility
+
+The following table shows the Jolokia versions compatible with each release of jolokia-mcp-server.
+
+| jolokia-mcp-server | Jolokia |
+|--------------------|---------|
+| 0.6.x              | 2.6.1 – 2.6.3 |
+| 0.5.x              | 2.4.3 – 2.6.0 |
+| 0.4.x              | 2.2.9 – 2.4.3 |
+| 0.3.x              | 2.2.8 – 2.2.9 |
+| 0.2.x              | 2.2.8   |
+| 0.1.x              | 2.2.8   |
+
 ## Install
 
 ### Standalone
